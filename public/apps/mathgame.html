@@ -1,0 +1,63 @@
+// 限時數學遊戲
+let gameState = {
+  difficulty: 'easy',
+  score: 0,
+  streak: 0,
+  maxStreak: 0,
+  correctCount: 0,
+  timeLeft: 30,
+  gameActive: false
+};
+
+const difficulties = {
+  easy: { max: 20, time: 30 },
+  medium: { max: 50, time: 45 },
+  hard: { max: 100, time: 60 }
+};
+
+function generateQuestion() {
+  const diff = difficulties[gameState.difficulty];
+  const operators = ['+', '-', '×', '÷'];
+  const operator = operators[Math.floor(Math.random() * 4)];
+  let num1, num2, answer;
+  
+  switch (operator) {
+    case '+':
+      num1 = Math.floor(Math.random() * diff.max) + 1;
+      num2 = Math.floor(Math.random() * diff.max) + 1;
+      answer = num1 + num2;
+      break;
+    case '-':
+      num1 = Math.floor(Math.random() * diff.max) + 1;
+      num2 = Math.floor(Math.random() * num1) + 1;
+      answer = num1 - num2;
+      break;
+    // ... 其他運算符
+  }
+  
+  return { question: `${num1} ${operator} ${num2}`, answer };
+}
+
+function submitAnswer() {
+  const userAnswer = parseInt(document.getElementById('answerInput').value);
+  
+  if (userAnswer === gameState.currentAnswer) {
+    gameState.score += 10 + gameState.streak * 2;
+    gameState.streak++;
+    gameState.correctCount++;
+  } else {
+    gameState.streak = 0;
+    gameState.score = Math.max(0, gameState.score - 5);
+  }
+}
+
+async function saveScore() {
+  await fetch('/api/mathgame/scores', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: document.getElementById('playerName').value,
+      score: gameState.score,
+      difficulty: gameState.difficulty
+    })
+  });
+}

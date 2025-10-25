@@ -1,0 +1,54 @@
+// 井字遊戲 - Minimax AI 演算法
+let board = ['', '', '', '', '', '', '', '', ''];
+let currentPlayer = 'O';
+let gameActive = true;
+
+// Minimax 演算法核心
+function minimax(board, depth, isMaximizing) {
+  const result = checkWin();
+  if (result.winner === 'X') return 10 - depth;
+  if (result.winner === 'O') return depth - 10;
+  if (board.every(cell => cell !== '')) return 0;
+
+  if (isMaximizing) {
+    let bestScore = -Infinity;
+    for (let i = 0; i < 9; i++) {
+      if (board[i] === '') {
+        board[i] = 'X';
+        bestScore = Math.max(bestScore, minimax(board, depth + 1, false));
+        board[i] = '';
+      }
+    }
+    return bestScore;
+  } else {
+    let bestScore = Infinity;
+    for (let i = 0; i < 9; i++) {
+      if (board[i] === '') {
+        board[i] = 'O';
+        bestScore = Math.min(bestScore, minimax(board, depth + 1, true));
+        board[i] = '';
+      }
+    }
+    return bestScore;
+  }
+}
+
+// 遊戲狀態儲存
+function saveGame() {
+  localStorage.setItem('jhm5_4_tictactoe', JSON.stringify({
+    board, 
+    currentPlayer, 
+    gameMode: 'ai', 
+    gameActive
+  }));
+}
+
+function loadGame() {
+  const saved = localStorage.getItem('jhm5_4_tictactoe');
+  if (saved) {
+    const state = JSON.parse(saved);
+    board = state.board;
+    currentPlayer = state.currentPlayer;
+    gameActive = state.gameActive;
+  }
+}
